@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { getAgent } from "@/lib/agents";
+import { AssetsView } from "@/components/assets-view";
 import { CalendarView } from "@/components/calendar-view";
 import { ChatPanel } from "@/components/chat-panel";
 import { KanbanBoard } from "@/components/kanban-board";
@@ -23,6 +24,8 @@ export default function Home() {
         <TeamChat />
       ) : active.kind === "calendar" ? (
         <CalendarView />
+      ) : active.kind === "assets" ? (
+        <AssetsView />
       ) : active.kind === "settings" ? (
         <SettingsPanel />
       ) : (

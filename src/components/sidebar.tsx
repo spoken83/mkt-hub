@@ -174,9 +174,9 @@ export function Sidebar({ active, onSelect }: SidebarProps) {
             <KanbanSquare className="size-4" />
           </span>
           <div>
-            <div className="text-sm font-medium">Board</div>
+            <div className="text-sm font-medium">Content Pipeline</div>
             <div className="text-xs text-muted-foreground">
-              Content pipeline kanban
+              What the team is working on
             </div>
           </div>
         </button>

@@ -55,7 +55,7 @@ export function KanbanBoard() {
         </Button>
       </header>
 
-      <div className="min-h-0 flex-1 overflow-x-auto rounded-2xl border bg-card p-4 shadow-sm">
+      <div className="min-h-0 flex-1 overflow-auto rounded-2xl border bg-card p-4 shadow-sm">
         {error ? (
           <p className="text-sm text-muted-foreground">{error}</p>
         ) : loading && !board ? (
@@ -65,17 +65,17 @@ export function KanbanBoard() {
             ))}
           </div>
         ) : board ? (
-          <div className="flex h-full gap-4">
+          <div className="flex min-h-full w-max gap-4">
             {board.columns.map((column) => (
               <div
                 key={column.id}
-                className="flex w-64 shrink-0 flex-col rounded-xl bg-muted/60"
+                className="flex max-h-[calc(100dvh-14rem)] w-64 shrink-0 flex-col self-start rounded-xl bg-muted/60"
               >
                 <div className="flex items-center justify-between p-3">
                   <span className="text-sm font-semibold">{column.name}</span>
                   <Badge variant="secondary">{column.taskIds.length}</Badge>
                 </div>
-                <div className="flex-1 space-y-2 overflow-y-auto px-3 pb-3">
+                <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 pb-3">
                   {column.taskIds.map((taskId) => {
                     const task = board.tasks[taskId];
                     if (!task) return null;
