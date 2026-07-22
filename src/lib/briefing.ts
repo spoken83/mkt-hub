@@ -60,6 +60,7 @@ export async function runBriefing(
     businessContext ? `Current business context from Gordon: ${businessContext}` : "",
     calendarSummary(),
     "You can read or update the calendar yourself with the hub-calendar skill (curl the Hub API).",
+    "Publishing duty: if any calendar entry is status 'scheduled' with today's date (or overdue), publish it to the right platforms now via the Composio CLI, then PATCH its status to 'posted'. Report what you published in your team-chat update.",
   ]
     .filter(Boolean)
     .join("\n\n");

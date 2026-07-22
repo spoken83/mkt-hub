@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import type { CalendarEntry, CalendarStatus } from "@/lib/calendar-shared";
 import { STATUS_LABELS } from "@/lib/calendar-shared";
+import { PostDialog } from "@/components/post-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,9 +18,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<CalendarStatus, string> = {
-  planned: "bg-amber-100 text-amber-900 border-amber-300",
-  scheduled: "bg-orange-100 text-orange-900 border-orange-300",
-  posted: "bg-emerald-100 text-emerald-900 border-emerald-300",
+  planned:
+    "bg-sky-100 text-sky-900 border-sky-300 dark:bg-sky-900/40 dark:text-sky-200 dark:border-sky-800",
+  scheduled:
+    "bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-900/40 dark:text-amber-200 dark:border-amber-700",
+  posted:
+    "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-200 dark:border-emerald-800",
 };
 
 interface Draft {
@@ -29,7 +33,6 @@ interface Draft {
   status: CalendarStatus;
   vertical: string;
   notes: string;
-  driveLinks?: string[];
 }
 
 export function CalendarView() {
@@ -39,6 +42,7 @@ export function CalendarView() {
     return { year: now.getFullYear(), month: now.getMonth() };
   });
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [postEntry, setPostEntry] = useState<CalendarEntry | null>(null);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
@@ -192,15 +196,7 @@ export function CalendarView() {
                       tabIndex={0}
                       onClick={(ev) => {
                         ev.stopPropagation();
-                        setDraft({
-                          id: entry.id,
-                          date: entry.date,
-                          title: entry.title,
-                          status: entry.status,
-                          vertical: entry.vertical ?? "",
-                          notes: entry.notes ?? "",
-                          driveLinks: entry.driveLinks,
-                        });
+                        setPostEntry(entry);
                       }}
                       className={cn(
                         "truncate rounded border px-1.5 py-0.5 text-xs",
@@ -227,6 +223,15 @@ export function CalendarView() {
         </div>
       </div>
 
+      {postEntry && (
+        <PostDialog
+          key={postEntry.id}
+          entry={entries.find((e) => e.id === postEntry.id) ?? postEntry}
+          onClose={() => setPostEntry(null)}
+          onChanged={() => void load()}
+        />
+      )}
+
       <Dialog open={draft !== null} onOpenChange={(open) => !open && setDraft(null)}>
         <DialogContent>
           <DialogHeader>
@@ -234,27 +239,6 @@ export function CalendarView() {
           </DialogHeader>
           {draft && (
             <div className="space-y-3">
-              {draft.driveLinks && draft.driveLinks.length > 0 && (
-                <div className="flex gap-2 overflow-x-auto rounded-lg border bg-muted/30 p-2">
-                  {draft.driveLinks.map((fileId) => (
-                    <a
-                      key={fileId}
-                      href={`/api/drive/${fileId}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      title="Open full size"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={`/api/drive/${fileId}`}
-                        alt=""
-                        loading="lazy"
-                        className="h-28 rounded-md border object-cover"
-                      />
-                    </a>
-                  ))}
-                </div>
-              )}
               <div className="space-y-1.5">
                 <Label>Title</Label>
                 <Input
