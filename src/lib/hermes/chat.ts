@@ -31,6 +31,10 @@ function run(
     "-p",
     profile,
     "--accept-hooks",
+    // Loads the approval-card JSON convention for UI sessions only —
+    // WhatsApp/cron sessions keep their plain-text format.
+    "--skills",
+    "marketing-hub-ui",
     "chat",
     "-q",
     message,
