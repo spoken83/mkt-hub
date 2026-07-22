@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { KanbanSquare, Plus, Search, Settings } from "lucide-react";
+import {
+  CalendarDays,
+  KanbanSquare,
+  Plus,
+  Search,
+  Settings,
+  Users,
+} from "lucide-react";
 import { AGENTS } from "@/lib/agents";
 import { cn } from "@/lib/utils";
 import { AgentAvatar } from "@/components/agent-avatar";
@@ -9,7 +16,9 @@ import { Input } from "@/components/ui/input";
 
 export type ActiveView =
   | { kind: "agent"; agentId: string }
+  | { kind: "team" }
   | { kind: "board" }
+  | { kind: "calendar" }
   | { kind: "settings" };
 
 interface SidebarProps {
@@ -44,6 +53,32 @@ export function Sidebar({ active, onSelect }: SidebarProps) {
       </div>
 
       <div className="flex-1 overflow-y-auto p-3">
+        <div className="mb-2 px-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Channels
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => onSelect({ kind: "team" })}
+          className={cn(
+            "mb-4 flex w-full items-center gap-3 rounded-xl border border-transparent p-2.5 text-left transition-colors",
+            active.kind === "team"
+              ? "border-border bg-accent shadow-sm"
+              : "hover:bg-accent/60"
+          )}
+        >
+          <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Users className="size-4" />
+          </span>
+          <div>
+            <div className="text-sm font-medium">Marketing team</div>
+            <div className="text-xs text-muted-foreground">
+              You, Mara &amp; Kai
+            </div>
+          </div>
+        </button>
+
         <div className="mb-2 flex items-center justify-between px-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Agents
@@ -106,6 +141,26 @@ export function Sidebar({ active, onSelect }: SidebarProps) {
             <div className="text-sm font-medium">Board</div>
             <div className="text-xs text-muted-foreground">
               Content pipeline kanban
+            </div>
+          </div>
+        </button>
+        <button
+          type="button"
+          onClick={() => onSelect({ kind: "calendar" })}
+          className={cn(
+            "mt-1 flex w-full items-center gap-3 rounded-xl border border-transparent p-2.5 text-left transition-colors",
+            active.kind === "calendar"
+              ? "border-border bg-accent shadow-sm"
+              : "hover:bg-accent/60"
+          )}
+        >
+          <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <CalendarDays className="size-4" />
+          </span>
+          <div>
+            <div className="text-sm font-medium">Calendar</div>
+            <div className="text-xs text-muted-foreground">
+              Planned · scheduled · posted
             </div>
           </div>
         </button>

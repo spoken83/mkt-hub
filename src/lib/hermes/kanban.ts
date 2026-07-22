@@ -27,6 +27,34 @@ interface TaskRow {
   completed_at: string | null;
 }
 
+/** Flat task list with latest run summary — used by the team-chat watcher. */
+export function readTaskSummaries(): {
+  id: string;
+  title: string;
+  status: string;
+  assignee?: string;
+  summary?: string;
+}[] {
+  if (!fs.existsSync(hermesConfig.kanbanDb)) return [];
+  const rows = withDb(hermesConfig.kanbanDb, (db) =>
+    db
+      .prepare(
+        `SELECT t.id, t.title, t.status, t.assignee,
+                (SELECT r.summary FROM task_runs r WHERE r.task_id = t.id
+                 ORDER BY r.started_at DESC LIMIT 1) AS summary
+         FROM tasks t`
+      )
+      .all()
+  ) as { id: string; title: string; status: string; assignee: string | null; summary: string | null }[];
+  return rows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    status: r.status,
+    assignee: r.assignee ?? undefined,
+    summary: r.summary ?? undefined,
+  }));
+}
+
 export function readBoard(): KanbanBoard {
   if (!fs.existsSync(hermesConfig.kanbanDb)) {
     return {

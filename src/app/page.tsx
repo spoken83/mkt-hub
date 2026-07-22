@@ -1,17 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { AGENTS, getAgent } from "@/lib/agents";
+import { getAgent } from "@/lib/agents";
+import { CalendarView } from "@/components/calendar-view";
 import { ChatPanel } from "@/components/chat-panel";
 import { KanbanBoard } from "@/components/kanban-board";
 import { SettingsPanel } from "@/components/settings-panel";
 import { Sidebar, type ActiveView } from "@/components/sidebar";
+import { TeamChat } from "@/components/team-chat";
 
 export default function Home() {
-  const [active, setActive] = useState<ActiveView>({
-    kind: "agent",
-    agentId: AGENTS[0].id,
-  });
+  const [active, setActive] = useState<ActiveView>({ kind: "team" });
 
   const agent = active.kind === "agent" ? getAgent(active.agentId) : undefined;
 
@@ -20,6 +19,10 @@ export default function Home() {
       <Sidebar active={active} onSelect={setActive} />
       {agent ? (
         <ChatPanel key={agent.id} agent={agent} />
+      ) : active.kind === "team" ? (
+        <TeamChat />
+      ) : active.kind === "calendar" ? (
+        <CalendarView />
       ) : active.kind === "settings" ? (
         <SettingsPanel />
       ) : (

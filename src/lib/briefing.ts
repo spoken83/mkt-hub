@@ -1,7 +1,6 @@
-import { getAgent } from "./agents";
-import { sendToProfile } from "./hermes/chat";
-import { getThreadSession, setThreadSession } from "./hermes/threads";
+import { calendarSummary } from "./calendar";
 import { loadSettings, saveSettings } from "./settings";
+import { appendTeamMessage, runTeamTurn } from "./team";
 
 // Gordon's WhatsApp LID on Pip's bridge (see INFRASTRUCTURE / hermes notes).
 const PIP_BRIDGE_SEND = "http://localhost:3000/send";
@@ -53,26 +52,19 @@ export async function runBriefing(
   verticals: string[],
   businessContext: string
 ): Promise<void> {
-  const mara = getAgent("mara");
-  if (!mara) throw new Error("mara persona missing");
+  appendTeamMessage("system", "Daily briefing — Mara is preparing the plan.");
 
-  const prompt = [
-    "Good morning. Run your daily routine now (mm-daily-routine): check the calendar and industry news, then prepare this week's storyboard options for my approval.",
-    verticals.length
-      ? `Focus verticals right now: ${verticals.join(", ")}.`
-      : "",
+  const instruction = [
+    "It's your daily briefing. Run your routine now (mm-daily-routine): check industry news for our verticals, review the content calendar below, then open the team chat with a short update and this week's storyboard options as an approval card. Gordon will decide here in the channel.",
+    verticals.length ? `Focus verticals right now: ${verticals.join(", ")}.` : "",
     businessContext ? `Current business context from Gordon: ${businessContext}` : "",
-    "Present the storyboard options as an approval card. I will review them here in the Marketing Hub.",
+    calendarSummary(),
+    "You can read or update the calendar yourself with the hub-calendar skill (curl the Hub API).",
   ]
     .filter(Boolean)
     .join("\n\n");
 
-  const { sessionId } = await sendToProfile(
-    mara.hermesProfile,
-    prompt,
-    getThreadSession("mara")
-  );
-  setThreadSession("mara", sessionId);
+  await runTeamTurn("mara", instruction);
 }
 
 async function sendNudge(message: string): Promise<void> {
