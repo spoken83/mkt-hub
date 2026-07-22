@@ -15,6 +15,7 @@ export const hermesConfig = {
     process.env.HERMES_KANBAN_DB ??
     path.join(HERMES_HOME, "kanban", "boards", "marketing", "kanban.db"),
   kanbanBoard: process.env.HERMES_KANBAN_BOARD ?? "marketing",
-  /** Max time to wait for an agent reply, ms */
-  chatTimeoutMs: 240_000,
+  /** Max time to wait for an agent reply, ms. MM storyboard runs do vault
+   * reads + web searches and regularly exceed 4 minutes. */
+  chatTimeoutMs: 600_000,
 };

@@ -49,10 +49,16 @@ export function getSessionMessages(
   });
 }
 
-/** Last assistant turn of a session — used to pick up the CLI's reply. */
+/**
+ * Last assistant turn of a session recorded after `sinceEpochSeconds` —
+ * used to pick up the CLI's reply. The time filter guards against
+ * returning a stale earlier reply when the invocation died before
+ * recording anything.
+ */
 export function getLastAssistantMessage(
   profile: string,
-  sessionId: string
+  sessionId: string,
+  sinceEpochSeconds: number
 ): string | null {
   const row = withDb(hermesConfig.profileStateDb(profile), (db) =>
     db
@@ -60,9 +66,10 @@ export function getLastAssistantMessage(
         `SELECT content FROM messages
          WHERE session_id = ? AND role = 'assistant'
            AND content IS NOT NULL AND content != ''
+           AND timestamp >= ?
          ORDER BY timestamp DESC, id DESC LIMIT 1`
       )
-      .get(sessionId)
+      .get(sessionId, sinceEpochSeconds)
   ) as { content: string } | undefined;
   return row?.content ?? null;
 }

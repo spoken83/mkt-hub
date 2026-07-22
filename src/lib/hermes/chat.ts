@@ -44,6 +44,10 @@ function run(
   ];
   if (sessionId) args.push("-r", sessionId);
 
+  // Small clock-skew allowance so a reply written in the same second as
+  // the spawn isn't filtered out.
+  const startedAt = Date.now() / 1000 - 2;
+
   return new Promise((resolve, reject) => {
     execFile(
       hermesConfig.bin,
@@ -58,27 +62,26 @@ function run(
         const reportedId = /session_id:\s*(\S+)/.exec(stderr)?.[1];
         const finalSessionId = reportedId ?? sessionId;
 
-        if (error && !finalSessionId) {
+        if (!finalSessionId) {
           reject(
             new Error(
-              `hermes chat failed (${error.message}): ${stderr.slice(-500)}`
+              `hermes chat failed${error ? ` (${error.message})` : ""}: ${stderr.slice(-500)}`
             )
           );
           return;
         }
-        if (!finalSessionId) {
-          reject(new Error("hermes chat returned no session id"));
-          return;
-        }
 
         // stdout mixes reasoning boxes with the reply, so read the
-        // authoritative reply from the profile's state.db instead.
-        const reply = getLastAssistantMessage(profile, finalSessionId);
+        // authoritative reply from the profile's state.db instead. Only a
+        // message recorded after this invocation counts — a timed-out or
+        // crashed run must error, not echo an older reply.
+        const reply = getLastAssistantMessage(profile, finalSessionId, startedAt);
         if (reply == null) {
           reject(
             new Error(
-              `No reply recorded for session ${finalSessionId}` +
-                (error ? ` (${error.message})` : "")
+              error
+                ? `hermes chat failed (${error.message}): ${stderr.slice(-300)}`
+                : `No reply recorded for session ${finalSessionId}`
             )
           );
           return;
