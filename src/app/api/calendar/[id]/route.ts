@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { deleteEntry, updateEntry } from "@/lib/calendar";
+import { deleteEntry, loadCalendar, updateEntry } from "@/lib/calendar";
 
 export async function PATCH(
   req: NextRequest,
@@ -22,6 +22,13 @@ export async function DELETE(
   ctx: { params: Promise<{ id: string }> }
 ) {
   const { id } = await ctx.params;
+  const entry = loadCalendar().find((e) => e.id === id);
+  if (entry?.status === "posted") {
+    return NextResponse.json(
+      { error: "This post is already live — posted entries can't be deleted." },
+      { status: 409 }
+    );
+  }
   return deleteEntry(id)
     ? NextResponse.json({ ok: true })
     : NextResponse.json({ error: "Not found" }, { status: 404 });

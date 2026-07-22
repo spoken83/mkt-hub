@@ -1,7 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowUp, CheckCheck, Trash2 } from "lucide-react";
+import {
+  ArrowUp,
+  CheckCheck,
+  ChevronLeft,
+  ChevronRight,
+  Trash2,
+} from "lucide-react";
 import { AGENTS } from "@/lib/agents";
 import type { CalendarEntry } from "@/lib/calendar-shared";
 import { STATUS_LABELS } from "@/lib/calendar-shared";
@@ -55,6 +61,12 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
 
   if (!entry) return null;
   const images = entry.driveLinks ?? [];
+
+  const goTo = (index: number) => {
+    const el = stripRef.current;
+    if (!el) return;
+    el.scrollTo({ left: index * el.clientWidth, behavior: "smooth" });
+  };
 
   const send = async (text: string) => {
     const trimmed = text.trim();
@@ -135,23 +147,50 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
                 <span className="text-xs font-semibold">apop_digital</span>
               </div>
               {images.length > 0 ? (
-                <div
-                  ref={stripRef}
-                  onScroll={() => {
-                    const el = stripRef.current;
-                    if (el) setSlide(Math.round(el.scrollLeft / el.clientWidth));
-                  }}
-                  className="flex aspect-square snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none]"
-                >
-                  {images.map((fileId) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      key={fileId}
-                      src={`/api/drive/${fileId}`}
-                      alt=""
-                      className="aspect-square w-full shrink-0 snap-center object-cover"
-                    />
-                  ))}
+                <div className="group relative">
+                  <div
+                    ref={stripRef}
+                    onScroll={() => {
+                      const el = stripRef.current;
+                      if (el) setSlide(Math.round(el.scrollLeft / el.clientWidth));
+                    }}
+                    className="flex aspect-square snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  >
+                    {images.map((fileId) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        key={fileId}
+                        src={`/api/drive/${fileId}`}
+                        alt=""
+                        className="aspect-square w-full shrink-0 snap-center object-cover"
+                      />
+                    ))}
+                  </div>
+                  {images.length > 1 && slide > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => goTo(slide - 1)}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-1.5 text-white transition-opacity hover:bg-black/70"
+                      title="Previous slide"
+                    >
+                      <ChevronLeft className="size-4" />
+                    </button>
+                  )}
+                  {images.length > 1 && slide < images.length - 1 && (
+                    <button
+                      type="button"
+                      onClick={() => goTo(slide + 1)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-1.5 text-white transition-opacity hover:bg-black/70"
+                      title="Next slide"
+                    >
+                      <ChevronRight className="size-4" />
+                    </button>
+                  )}
+                  {images.length > 1 && (
+                    <span className="absolute right-2 top-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
+                      {slide + 1}/{images.length}
+                    </span>
+                  )}
                 </div>
               ) : (
                 <div className="flex aspect-square items-center justify-center bg-muted text-sm text-muted-foreground">
@@ -161,10 +200,13 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
               {images.length > 1 && (
                 <div className="flex justify-center gap-1.5 py-2">
                   {images.map((fileId, i) => (
-                    <span
+                    <button
                       key={fileId}
+                      type="button"
+                      onClick={() => goTo(i)}
+                      title={`Slide ${i + 1}`}
                       className={cn(
-                        "size-1.5 rounded-full",
+                        "size-2 rounded-full transition-colors",
                         i === slide ? "bg-sky-500" : "bg-muted-foreground/30"
                       )}
                     />
@@ -179,15 +221,21 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
               </div>
             </div>
             <div className="mt-3 flex items-center justify-between">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={remove}
-                className="text-destructive"
-              >
-                <Trash2 className="mr-1 size-3.5" />
-                Delete
-              </Button>
+              {entry.status === "posted" ? (
+                <span className="text-xs text-muted-foreground">
+                  Live — can&apos;t be deleted
+                </span>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={remove}
+                  className="text-destructive"
+                >
+                  <Trash2 className="mr-1 size-3.5" />
+                  Delete
+                </Button>
+              )}
               {entry.status === "planned" && (
                 <Button size="sm" onClick={confirm} disabled={confirming}>
                   <CheckCheck className="mr-1.5 size-4" />
