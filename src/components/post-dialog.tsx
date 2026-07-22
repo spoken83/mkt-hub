@@ -264,10 +264,10 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
 
           {/* Post copy + discussion */}
           <div className="flex min-h-0 flex-col gap-4">
-            {entry.caption && (
-              <div className="shrink-0 rounded-xl border bg-muted/20">
-                <div className="flex items-center justify-between border-b px-4 py-2">
-                  <span className="text-sm font-medium">Post copy</span>
+            <div className="shrink-0 rounded-xl border bg-muted/20">
+              <div className="flex items-center justify-between border-b px-4 py-2">
+                <span className="text-sm font-medium">Post copy</span>
+                {entry.caption && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -281,12 +281,18 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
                     <Copy className="mr-1 size-3" />
                     {copied ? "Copied" : "Copy"}
                   </Button>
-                </div>
+                )}
+              </div>
+              {entry.caption ? (
                 <p className="max-h-40 overflow-y-auto whitespace-pre-wrap px-4 py-3 text-sm leading-relaxed">
                   {entry.caption}
                 </p>
-              </div>
-            )}
+              ) : (
+                <p className="px-4 py-3 text-sm text-muted-foreground">
+                  No copy on file yet — ask Kai below to write or recover it.
+                </p>
+              )}
+            </div>
 
             <div className="flex min-h-0 flex-1 flex-col rounded-xl border bg-muted/20">
             <div className="border-b px-4 py-2.5 text-sm font-medium">
