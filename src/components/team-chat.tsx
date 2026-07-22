@@ -5,6 +5,7 @@ import { ArrowUp, Users } from "lucide-react";
 import { AGENTS } from "@/lib/agents";
 import type { TeamMessage } from "@/lib/team-shared";
 import { AgentAvatar } from "@/components/agent-avatar";
+import { AgentMarkdown } from "@/components/agent-markdown";
 import { ApprovalCard } from "@/components/approval-card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -192,8 +193,8 @@ function TeamRow({
           </span>
         </div>
         {message.content && (
-          <div className="max-w-2xl whitespace-pre-wrap rounded-2xl rounded-tl-sm bg-muted p-4 text-sm leading-relaxed">
-            {message.content}
+          <div className="max-w-2xl rounded-2xl rounded-tl-sm bg-muted p-4">
+            <AgentMarkdown content={message.content} />
           </div>
         )}
         {message.approval && (

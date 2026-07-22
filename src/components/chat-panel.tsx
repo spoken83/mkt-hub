@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowUp, MessageCircle } from "lucide-react";
 import { AgentAvatar } from "@/components/agent-avatar";
+import { AgentMarkdown } from "@/components/agent-markdown";
 import { ApprovalCard } from "@/components/approval-card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -124,9 +125,11 @@ export function ChatPanel({ agent }: ChatPanelProps) {
             </p>
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-2 border-t pt-2 text-sm font-medium text-primary">
-          <MessageCircle className="size-4" />
-          Chat
+        <div className="mt-3 border-t pt-2">
+          <span className="inline-flex items-center gap-2 border-b-2 border-highlight pb-1 text-sm font-medium">
+            <MessageCircle className="size-4" />
+            Chat
+          </span>
         </div>
       </header>
 
@@ -272,8 +275,8 @@ function MessageRow({
         ) : (
           <>
             {message.content && (
-              <div className="max-w-2xl whitespace-pre-wrap rounded-2xl rounded-tl-sm bg-muted p-4 text-sm leading-relaxed">
-                {message.content}
+              <div className="max-w-2xl rounded-2xl rounded-tl-sm bg-muted p-4">
+                <AgentMarkdown content={message.content} />
               </div>
             )}
             {message.approval && (

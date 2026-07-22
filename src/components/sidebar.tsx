@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CalendarDays,
+  FolderOpen,
   KanbanSquare,
+  Moon,
   Plus,
   Search,
   Settings,
+  Sun,
   Users,
 } from "lucide-react";
 import { AGENTS } from "@/lib/agents";
@@ -19,11 +22,44 @@ export type ActiveView =
   | { kind: "team" }
   | { kind: "board" }
   | { kind: "calendar" }
+  | { kind: "assets" }
   | { kind: "settings" };
 
 interface SidebarProps {
   active: ActiveView;
   onSelect: (view: ActiveView) => void;
+}
+
+function ThemeToggle() {
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    queueMicrotask(() =>
+      setDark(document.documentElement.classList.contains("dark"))
+    );
+  }, []);
+
+  const toggle = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    try {
+      localStorage.theme = next ? "dark" : "light";
+    } catch {
+      // private mode — theme just won't persist
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      title={dark ? "Switch to light mode" : "Switch to dark mode"}
+      className="rounded-full border p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+    >
+      {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+    </button>
+  );
 }
 
 export function Sidebar({ active, onSelect }: SidebarProps) {
@@ -166,6 +202,26 @@ export function Sidebar({ active, onSelect }: SidebarProps) {
         </button>
         <button
           type="button"
+          onClick={() => onSelect({ kind: "assets" })}
+          className={cn(
+            "mt-1 flex w-full items-center gap-3 rounded-xl border border-transparent p-2.5 text-left transition-colors",
+            active.kind === "assets"
+              ? "border-border bg-accent shadow-sm"
+              : "hover:bg-accent/60"
+          )}
+        >
+          <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <FolderOpen className="size-4" />
+          </span>
+          <div>
+            <div className="text-sm font-medium">Assets</div>
+            <div className="text-xs text-muted-foreground">
+              Marketing Drive folder
+            </div>
+          </div>
+        </button>
+        <button
+          type="button"
           onClick={() => onSelect({ kind: "settings" })}
           className={cn(
             "mt-1 flex w-full items-center gap-3 rounded-xl border border-transparent p-2.5 text-left transition-colors",
@@ -188,15 +244,16 @@ export function Sidebar({ active, onSelect }: SidebarProps) {
 
       <div className="border-t p-4">
         <div className="flex items-center gap-3">
-          <span className="flex size-9 items-center justify-center rounded-full bg-muted text-sm font-medium">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium">
             G
           </span>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-medium">Gordon Frois</div>
             <div className="truncate text-xs text-muted-foreground">
               gordon.matthew@gmail.com
             </div>
           </div>
+          <ThemeToggle />
         </div>
       </div>
     </aside>

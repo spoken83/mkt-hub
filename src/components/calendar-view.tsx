@@ -29,6 +29,7 @@ interface Draft {
   status: CalendarStatus;
   vertical: string;
   notes: string;
+  driveLinks?: string[];
 }
 
 export function CalendarView() {
@@ -198,6 +199,7 @@ export function CalendarView() {
                           status: entry.status,
                           vertical: entry.vertical ?? "",
                           notes: entry.notes ?? "",
+                          driveLinks: entry.driveLinks,
                         });
                       }}
                       className={cn(
@@ -232,6 +234,27 @@ export function CalendarView() {
           </DialogHeader>
           {draft && (
             <div className="space-y-3">
+              {draft.driveLinks && draft.driveLinks.length > 0 && (
+                <div className="flex gap-2 overflow-x-auto rounded-lg border bg-muted/30 p-2">
+                  {draft.driveLinks.map((fileId) => (
+                    <a
+                      key={fileId}
+                      href={`/api/drive/${fileId}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="Open full size"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`/api/drive/${fileId}`}
+                        alt=""
+                        loading="lazy"
+                        className="h-28 rounded-md border object-cover"
+                      />
+                    </a>
+                  ))}
+                </div>
+              )}
               <div className="space-y-1.5">
                 <Label>Title</Label>
                 <Input
