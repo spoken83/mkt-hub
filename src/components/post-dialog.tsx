@@ -139,9 +139,9 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid min-h-0 flex-1 gap-6 overflow-y-auto md:grid-cols-[minmax(0,400px)_1fr] md:overflow-hidden">
+        <div className="grid min-h-0 flex-1 gap-6 overflow-y-auto md:grid-cols-[minmax(0,360px)_1fr] md:overflow-hidden">
           {/* Phone-style preview */}
-          <div className="mx-auto w-full max-w-[400px] md:overflow-y-auto">
+          <div className="mx-auto w-full max-w-[360px] md:overflow-y-auto">
             <div className="overflow-hidden rounded-[2rem] border-4 border-foreground/80 bg-background shadow-lg">
               <div className="flex items-center gap-2 px-3 py-2.5">
                 <span className="flex size-7 items-center justify-center rounded-full bg-gradient-to-tr from-amber-400 to-fuchsia-500 text-[10px] font-bold text-white">
@@ -157,7 +157,7 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
                       const el = stripRef.current;
                       if (el) setSlide(Math.round(el.scrollLeft / el.clientWidth));
                     }}
-                    className="flex aspect-square snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                    className="flex aspect-[4/5] snap-x snap-mandatory overflow-x-auto scroll-smooth bg-muted/40 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                   >
                     {images.map((fileId) => (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -165,7 +165,7 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
                         key={fileId}
                         src={`/api/drive/${fileId}`}
                         alt=""
-                        className="aspect-square w-full shrink-0 snap-center object-cover"
+                        className="aspect-[4/5] w-full shrink-0 snap-center object-contain"
                       />
                     ))}
                   </div>
@@ -196,7 +196,7 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
                   )}
                 </div>
               ) : (
-                <div className="flex aspect-square items-center justify-center bg-muted text-sm text-muted-foreground">
+                <div className="flex aspect-[4/5] items-center justify-center bg-muted text-sm text-muted-foreground">
                   No artifacts linked yet
                 </div>
               )}
