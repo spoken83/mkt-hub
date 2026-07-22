@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { KanbanSquare, Plus, Search } from "lucide-react";
+import { KanbanSquare, Plus, Search, Settings } from "lucide-react";
 import { AGENTS } from "@/lib/agents";
 import { cn } from "@/lib/utils";
 import { AgentAvatar } from "@/components/agent-avatar";
 import { Input } from "@/components/ui/input";
 
-export type ActiveView = { kind: "agent"; agentId: string } | { kind: "board" };
+export type ActiveView =
+  | { kind: "agent"; agentId: string }
+  | { kind: "board" }
+  | { kind: "settings" };
 
 interface SidebarProps {
   active: ActiveView;
@@ -103,6 +106,26 @@ export function Sidebar({ active, onSelect }: SidebarProps) {
             <div className="text-sm font-medium">Board</div>
             <div className="text-xs text-muted-foreground">
               Content pipeline kanban
+            </div>
+          </div>
+        </button>
+        <button
+          type="button"
+          onClick={() => onSelect({ kind: "settings" })}
+          className={cn(
+            "mt-1 flex w-full items-center gap-3 rounded-xl border border-transparent p-2.5 text-left transition-colors",
+            active.kind === "settings"
+              ? "border-border bg-accent shadow-sm"
+              : "hover:bg-accent/60"
+          )}
+        >
+          <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Settings className="size-4" />
+          </span>
+          <div>
+            <div className="text-sm font-medium">Settings</div>
+            <div className="text-xs text-muted-foreground">
+              Briefing, verticals, context
             </div>
           </div>
         </button>
