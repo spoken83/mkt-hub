@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# APOP Marketing Hub
 
-## Getting Started
+Web control center for the APOP AI marketing team running on Hermes: chat with the agents (Mara — Marketing Manager, Kai — Creative), approve storyboards and publishing from rich cards, and watch the content pipeline on the kanban board.
 
-First, run the development server:
+## Requirements
+
+- Runs on the same machine as Hermes (`~/.hermes`), with the `marketing-manager` and `marketing-creative` profiles and the `marketing` kanban board set up.
+- Node 20.9+.
+
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev -- --port 3333   # port 3000 is taken by the Hermes WhatsApp bridge
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3333.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How it talks to Hermes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Chat**: spawns `hermes -p <profile> --accept-hooks chat -q "<msg>" -Q --source tool` per message, resuming sessions with `-r`. Replies are read from the profile's `state.db` (SQLite, read-only).
+- **Kanban**: reads `~/.hermes/kanban/boards/marketing/kanban.db` read-only; the Hermes gateway's dispatcher does all task execution.
+- Per-agent thread state lives in `.data/threads.json` (gitignored).
 
-## Learn More
+Paths can be overridden with `HERMES_HOME`, `HERMES_BIN`, `HERMES_KANBAN_DB`, `HERMES_KANBAN_BOARD`.
 
-To learn more about Next.js, take a look at the following resources:
+## Approval cards
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Agents emit fenced ```json blocks with `{"kind": "storyboard" | "publish", "title": …, "options": [{"id", "label", "summary"}]}` to render interactive approval cards; choosing an option replies "I choose option X." in the thread.
