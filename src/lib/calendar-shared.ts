@@ -11,6 +11,8 @@ export interface CalendarEntry {
   contentType?: "carousel" | "static" | "video" | "copy" | "other";
   status: CalendarStatus;
   notes?: string;
+  /** The actual post copy — caption text incl. hashtags */
+  caption?: string;
   kanbanTaskId?: string;
   driveLinks?: string[];
   createdAt: string;

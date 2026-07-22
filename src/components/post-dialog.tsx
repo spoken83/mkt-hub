@@ -6,6 +6,7 @@ import {
   CheckCheck,
   ChevronLeft,
   ChevronRight,
+  Copy,
   Trash2,
 } from "lucide-react";
 import { AGENTS } from "@/lib/agents";
@@ -37,6 +38,8 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
   const [busy, setBusy] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [slide, setSlide] = useState(0);
+  const [captionOpen, setCaptionOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
 
@@ -118,7 +121,7 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[92vh] overflow-hidden sm:max-w-5xl">
+      <DialogContent className="flex h-[92vh] w-[95vw] flex-col overflow-hidden sm:max-w-[1280px]">
         <DialogHeader>
           <DialogTitle className="flex flex-wrap items-center gap-2 pr-6 text-base">
             <span className="truncate">{entry.title}</span>
@@ -136,9 +139,9 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid min-h-0 gap-5 md:grid-cols-[minmax(0,340px)_1fr]">
+        <div className="grid min-h-0 flex-1 gap-6 overflow-y-auto md:grid-cols-[minmax(0,400px)_1fr] md:overflow-hidden">
           {/* Phone-style preview */}
-          <div className="mx-auto w-full max-w-[340px]">
+          <div className="mx-auto w-full max-w-[400px] md:overflow-y-auto">
             <div className="overflow-hidden rounded-[2rem] border-4 border-foreground/80 bg-background shadow-lg">
               <div className="flex items-center gap-2 px-3 py-2.5">
                 <span className="flex size-7 items-center justify-center rounded-full bg-gradient-to-tr from-amber-400 to-fuchsia-500 text-[10px] font-bold text-white">
@@ -215,9 +218,23 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
               )}
               <div className="px-3 pb-3 pt-1 text-xs leading-relaxed">
                 <span className="font-semibold">apop_digital</span>{" "}
-                <span className="text-muted-foreground">
-                  {entry.notes ?? "No caption notes."}
+                <span
+                  className={cn(
+                    "whitespace-pre-wrap text-muted-foreground",
+                    !captionOpen && "line-clamp-4"
+                  )}
+                >
+                  {entry.caption ?? entry.notes ?? "No caption yet."}
                 </span>
+                {(entry.caption ?? "").length > 160 && (
+                  <button
+                    type="button"
+                    onClick={() => setCaptionOpen((v) => !v)}
+                    className="mt-0.5 block font-medium text-muted-foreground/70 hover:text-foreground"
+                  >
+                    {captionOpen ? "less" : "more"}
+                  </button>
+                )}
               </div>
             </div>
             <div className="mt-3 flex items-center justify-between">
@@ -245,8 +262,33 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
             </div>
           </div>
 
-          {/* Discussion thread */}
-          <div className="flex min-h-0 flex-col rounded-xl border bg-muted/20">
+          {/* Post copy + discussion */}
+          <div className="flex min-h-0 flex-col gap-4">
+            {entry.caption && (
+              <div className="shrink-0 rounded-xl border bg-muted/20">
+                <div className="flex items-center justify-between border-b px-4 py-2">
+                  <span className="text-sm font-medium">Post copy</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => {
+                      void navigator.clipboard.writeText(entry.caption ?? "");
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 1500);
+                    }}
+                  >
+                    <Copy className="mr-1 size-3" />
+                    {copied ? "Copied" : "Copy"}
+                  </Button>
+                </div>
+                <p className="max-h-40 overflow-y-auto whitespace-pre-wrap px-4 py-3 text-sm leading-relaxed">
+                  {entry.caption}
+                </p>
+              </div>
+            )}
+
+            <div className="flex min-h-0 flex-1 flex-col rounded-xl border bg-muted/20">
             <div className="border-b px-4 py-2.5 text-sm font-medium">
               Discussion
               <span className="ml-2 text-xs font-normal text-muted-foreground">
@@ -256,7 +298,6 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
             <div
               ref={threadRef}
               className="min-h-48 flex-1 space-y-4 overflow-y-auto p-4"
-              style={{ maxHeight: "46vh" }}
             >
               {thread.length === 0 && !busy && (
                 <p className="text-sm text-muted-foreground">
@@ -305,6 +346,7 @@ export function PostDialog({ entry, onClose, onChanged }: PostDialogProps) {
                 </Button>
               </div>
             </form>
+            </div>
           </div>
         </div>
       </DialogContent>

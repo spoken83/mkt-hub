@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
     vertical: body.vertical || undefined,
     contentType: body.contentType || undefined,
     notes: body.notes || undefined,
+    caption: body.caption || undefined,
     kanbanTaskId: body.kanbanTaskId || undefined,
     driveLinks: Array.isArray(body.driveLinks) ? body.driveLinks : undefined,
   });
